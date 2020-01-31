@@ -1,30 +1,34 @@
 #!/usr/bin/python3
-"""Review view module"""
+"""States view module.."""
 from models import storage
+from models.city import City
+from models.state import State
+from models.place import Place
 from models.review import Review
 from api.v1.views import app_views
-from flask import Flask, jsonify, abort, request
+from flask import Flask, jsonify, abort, request, make_response
 
 
-@app_views.route('/places/<place_id>/reviews', methods=['GET'],
-                 strict_slashes=False)
-def places_reviews(place_id):
-    """Retrieves the list of all Review objects of a Place"""
-    if storage.get('Place', place_id) is None:
+@app_views.route('/reviews', methods=['GET'], strict_slashes=False)
+def all_reviews():
+    """Retrieves the list of all Review objects"""
+    reviews_list = []
+    review_objs = storage.all('Review').values()
+    for element in review_objs:
+        reviews_list.append(element.to_dict())
+    print(reviews_list)
+    return jsonify(reviews_list)
+
+
+@app_views.route('/places/<place_id>/reviews',
+                 methods=['GET'], strict_slashes=False)
+def reviews_list(place_id):
+    """Retrieves a Review object."""
+    reviews_list = []
+    places_objs = storage.get('Place', place_id)
+    if places_objs is None:
         abort(404)
-    reviews_place = []
-    reviews_objs = storage.all('Review')
-    for key, value in reviews_objs.items():
-        if place_id == value.place_id:
-            reviews_place.append(value.to_dict())
-    return jsonify(reviews_place), 201
+    for places in places_objs.reviews:
+        reviews_list.append(places.to_dict())
 
-
-@app_views.route('/reviews/<review_id>', methods=['GET'],
-                 strict_slashes=False)
-def review(review_id):
-    """Retrieves a Review object"""
-    new_review = storage.get('Review', review_id)
-    if new_review is None:
-        abort(404)
-    return jsonify(new_review.to_dict())
+    return jsonify(reviews_list)
