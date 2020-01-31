@@ -59,15 +59,15 @@ def new_user():
                  methods=['PUT'], strict_slashes=False)
 def user_update(user_id):
     """Updates a User object"""
-    data_for_update = request.get_json()
-    if data_for_update is None:
+    data_to_be_updated = request.get_json()
+    if data_to_be_updated is None:
         abort(400, "Not a JSON")
-    forbiden_keys = ['id', 'created_at', 'updated_at', 'email']
+    ignored_keys = ['id', 'email', 'created_at', 'updated_at']
     user_to_update = storage.get('User', user_id)
     if user_to_update is None:
         abort(404)
-    for key, value in data_for_update.items():
-        if key not in forbiden_keys:
+    for key, value in data_to_be_updated.items():
+        if key not in ignored_keys:
             setattr(user_to_update, key, value)
     user_to_update.save()
     return jsonify(user_to_update.to_dict()), 200

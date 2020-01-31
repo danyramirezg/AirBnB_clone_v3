@@ -56,15 +56,15 @@ def new_amenity():
                  methods=['PUT'], strict_slashes=False)
 def amenity_update(amenity_id):
     """Updates a Amenity object"""
-    data_for_update = request.get_json()
-    if data_for_update is None:
+    data_to_be_updated = request.get_json()
+    if data_to_be_updated is None:
         abort(400, "Not a JSON")
-    forbiden_keys = ['id', 'created_at', 'updated_at']
+    ignored_keys = ['id', 'created_at', 'updated_at']
     amenity_to_update = storage.get('Amenity', amenity_id)
     if amenity_to_update is None:
         abort(404)
-    for key, value in data_for_update.items():
-        if key not in forbiden_keys:
+    for key, value in data_to_be_updated.items():
+        if key not in ignored_keys:
             setattr(amenity_to_update, key, value)
     amenity_to_update.save()
     return jsonify(amenity_to_update.to_dict()), 200

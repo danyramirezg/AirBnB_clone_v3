@@ -76,15 +76,15 @@ def new_city(state_id):
 @app_views.route('/cities/<city_id>', methods=['PUT'], strict_slashes=False)
 def city_update(city_id):
     """Updates one state based on its id"""
-    forbiden_keys = ['id', 'created_at', 'updated_at', 'state_id']
+    ignored_keys = ['id', 'state_id', 'created_at', 'updated_at']
     city_to_update = storage.get('City', city_id)
     if city_to_update is None:
         abort(404)
-    data_for_update = request.get_json()
-    if data_for_update is None:
+    data_to_be_updated = request.get_json()
+    if data_to_be_updated is None:
         abort(400, "Not a JSON")
-    for key, value in data_for_update.items():
-        if key not in forbiden_keys:
+    for key, value in data_to_be_updated.items():
+        if key not in ignored_keys:
             setattr(city_to_update, key, value)
     city_to_update.save()
     storage.reload()

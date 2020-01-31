@@ -55,15 +55,15 @@ def new_state():
 @app_views.route('/states/<state_id>', methods=['PUT'], strict_slashes=False)
 def state_update(state_id):
     """Updates one state based on its id"""
-    data_for_update = request.get_json()
-    if data_for_update is None:
+    data_to_be_updated = request.get_json()
+    if data_to_be_updated is None:
         abort(400, "Not a JSON")
-    forbiden_keys = ['id', 'created_at', 'updated_at']
+    ignored_keys = ['id', 'created_at', 'updated_at']
     state_to_update = storage.get('State', state_id)
     if state_to_update is None:
         abort(404)
-    for key, value in data_for_update.items():
-        if key not in forbiden_keys:
+    for key, value in data_to_be_updated.items():
+        if key not in ignored_keys:
             setattr(state_to_update, key, value)
     state_to_update.save()
     return jsonify(state_to_update.to_dict()), 200
